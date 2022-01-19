@@ -20,6 +20,10 @@ There are 4 branches in this repository:
 which implements one of the interfaces.
 - `not-bugged-and-workaround-2`: Another way to resolve the issue.
 
+### Files
+
+All sample files are in the `App\Example` namespace (`./src/Example` directory).
+
 ### How to trigger the bug
 
 Checkout the `bugged` branch and run some Symfony console action. Example:
