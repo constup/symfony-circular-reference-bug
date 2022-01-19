@@ -6,20 +6,20 @@ namespace App\Example;
 
 class Circle implements MathShapeInterface, TwoDimensionsInterface
 {
-    private MathShapeInterface $neighborObject;
+    private SampleInterface $neighborObject;
 
     /**
-     * @param MathShapeInterface $neighborObject
+     * @param SampleInterface $neighborObject
      */
-    public function __construct(MathShapeInterface $neighborObject)
+    public function __construct(SampleInterface $neighborObject)
     {
         $this->neighborObject = $neighborObject;
     }
 
     /**
-     * @return MathShapeInterface
+     * @return SampleInterface
      */
-    public function getNeighborObject(): MathShapeInterface
+    public function getNeighborObject(): SampleInterface
     {
         return $this->neighborObject;
     }
