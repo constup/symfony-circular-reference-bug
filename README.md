@@ -12,13 +12,14 @@ This is a default Symfony web application. Just clone the repository and run `co
 
 ### Branches
 
-There are 4 branches in this repository:
+There are 5 branches in this repository:
 
 - `master`: Blank Symfony 5.4 Web Application project. No code is added to this branch.
 - `bugged`: This branch contains some sample code to demonstrate the bug.
 - `not-bugged-and-workaround-1`: This branch demonstrates that the bug can be resolved simply by adding another object
 which implements one of the interfaces.
 - `not-bugged-and-workaround-2`: Another way to resolve the issue.
+- `expected`: An example of expected behavior.
 
 ### Files
 
@@ -186,7 +187,7 @@ This is the dump of the `\Exception` object:
 
 ## The cause of the bug
 
-In the bugged example, class `Circle` implements two interfaces: `MatchShapeInterface` and `TwoDimensionsInterface`. It
+In the bugged example, class `Circle` implements two interfaces: `MathShapeInterface` and `TwoDimensionsInterface`. It
 also has a property called `neighborOject` of type `MathShapeInterface`.
 
 Since there is no other object which implements both of the interfaces, the compiler will try to wire up both interfaces 
@@ -203,3 +204,31 @@ being autowired to a specific class and the compiler will run successfully.
 By adding the `Cube` class, which implements `MathShapeInterface`, this interface is no longer autowired to a 
 specific class. `TwoDimensionsInterface` will stay wired to the `Circle` class, but it doesn't matter, since 
 `neighborObject`'s type is `MathShapeInterface`. This is why "Circular reference" bug will not be thrown.
+
+## Expected behavior
+
+When a class is implementing two interfaces, with one of them being the parent of the other, only the last one should be
+autowired to point to our class.
+
+In the example (on the `bugged` branch), `TwoDimensionsInterface` is extending `MathShapeInterface`. PHP does not allow
+classes to implement interfaces which are already implemented, so the header of the class must be:
+
+```php
+class Circle implements MathShapeInterface, TwoDimensionsInterface
+```
+
+PHP will throw an exception if it's the other way around:
+
+```php
+class Circle implements TwoDimensionsInterface, MathShapeInterface
+```
+
+This is why the second interface in our example is considered to be the defining interface of the class. The first 
+interface is merely there for better classification purposes and to help with abstraction between different class types.
+
+The `expected` branch of this repository contains an example of how the dependency injection compiler should behave. In
+the example on the `expected` branch, the property type of the `neighborobject` is changed to a new `SampleInterface`.
+There are no classes which implement the `SampleInterface`, but the compiler run is still successful. Thus, the expected
+behavior for processing `MathShapeInterface` on the `bugged` branch should be the same as for `SampleInterface` in the
+`expected` branch - the `MathShapeInterface` should not be autowired to the `Circle` class if a child interface of 
+`MathShapeInterface` is present and the `Circle` class is implementing the child interface.
